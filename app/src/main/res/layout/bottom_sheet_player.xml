@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/playerSheet"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
+    android:visibility="gone"
+    app:behavior_hideable="false"
+    app:behavior_peekHeight="72dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="8dp"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+    tools:visibility="visible">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="8dp">
+
+        <!-- Collapsed View (Mini Player) -->
+        <LinearLayout
+            android:id="@+id/miniPlayer"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:background="?attr/colorSurface"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="8dp">
+
+            <!-- Song Info -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/playerSongTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textAppearance="?attr/textAppearanceBody1"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textStyle="bold"
+                    tools:text="Song Title" />
+
+                <TextView
+                    android:id="@+id/playerSongArtist"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    tools:text="Artist Name" />
+            </LinearLayout>
+
+            <!-- Playback Controls -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPrevious"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:contentDescription="@string/previous"
+                    app:icon="@drawable/ic_skip_previous"
+                    app:iconGravity="textStart"
+                    app:iconTint="?attr/colorOnSurface" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPlayPause"
+                    style="@style/Widget.Material3.Button.IconButton.Filled"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="4dp"
+                    android:contentDescription="@string/play_pause"
+                    app:icon="@drawable/ic_play"
+                    app:iconGravity="textStart" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnNext"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="4dp"
+                    android:contentDescription="@string/next"
+                    app:icon="@drawable/ic_skip_next"
+                    app:iconGravity="textStart"
+                    app:iconTint="?attr/colorOnSurface" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Expanded View (Full Player) -->
+        <LinearLayout
+            android:id="@+id/expandedPlayer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:visibility="gone">
+
+            <!-- Seek Bar -->
+            <com.google.android.material.slider.Slider
+                android:id="@+id/seekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:valueFrom="0"
+                android:valueTo="100" />
+
+            <!-- Time Labels -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/currentTime"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAppearance="?attr/textAppearanceCaption"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    tools:text="0:00" />
+
+                <TextView
+                    android:id="@+id/totalTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?attr/textAppearanceCaption"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    tools:text="3:45" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

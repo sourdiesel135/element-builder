@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TinyAMP</string>
+
+    <!-- Player Controls -->
+    <string name="play">Play</string>
+    <string name="pause">Pause</string>
+    <string name="play_pause">Play/Pause</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+    <string name="now_playing">Now Playing</string>
+
+    <!-- UI Elements -->
+    <string name="album_art">Album Art</string>
+    <string name="no_songs_found">No songs found</string>
+    <string name="no_songs_description">Add some music files to your device to get started</string>
+    <string name="loading">Loading songs…</string>
+
+    <!-- Permissions -->
+    <string name="permission_required">Permission Required</string>
+    <string name="storage_permission_rationale">This app needs storage permission to access your music files</string>
+</resources>
