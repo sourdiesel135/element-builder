@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:background="@drawable/glass_card_background">
+
+    <TextView
+        android:id="@+id/widget_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        android:textSize="16sp"
+        android:textColor="@color/neon_cyan"
+        android:gravity="center"
+        android:shadowColor="@color/cyan_glow"
+        android:shadowDx="0"
+        android:shadowDy="0"
+        android:shadowRadius="4"/>
+
+    <TextView
+        android:id="@+id/widget_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ready"
+        android:textSize="12sp"
+        android:textColor="@color/neon_pink"
+        android:gravity="center"
+        android:layout_marginTop="4dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="8dp">
+
+        <ImageButton
+            android:id="@+id/widget_previous_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_media_previous"
+            android:tint="@color/neon_cyan"
+            android:contentDescription="@string/previous"/>
+
+        <ImageButton
+            android:id="@+id/widget_play_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/neon_button_background"
+            android:src="@android:drawable/ic_media_play"
+            android:tint="@color/neon_pink"
+            android:contentDescription="@string/play"/>
+
+        <ImageButton
+            android:id="@+id/widget_next_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_media_next"
+            android:tint="@color/neon_cyan"
+            android:contentDescription="@string/next"/>
+    </LinearLayout>
+
+</LinearLayout>

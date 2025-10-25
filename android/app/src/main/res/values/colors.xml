@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Cyberglass Aesthetic - Neon Cyan/Pink -->
+
+    <!-- Primary Colors - Cyan -->
+    <color name="neon_cyan">#00FFFF</color>
+    <color name="neon_cyan_bright">#00FFFF</color>
+    <color name="neon_cyan_dim">#00CCCC</color>
+    <color name="cyan_glow">#0099FF</color>
+
+    <!-- Secondary Colors - Pink/Magenta -->
+    <color name="neon_pink">#FF00FF</color>
+    <color name="neon_magenta">#FF006E</color>
+    <color name="pink_glow">#FF1493</color>
+    <color name="hot_pink">#FF69B4</color>
+
+    <!-- Glass Morphism Base -->
+    <color name="glass_dark">#1A1A2E</color>
+    <color name="glass_darker">#0F0F1E</color>
+    <color name="glass_surface">#16213E</color>
+    <color name="glass_overlay">#80FFFFFF</color>
+    <color name="glass_overlay_dark">#40FFFFFF</color>
+
+    <!-- Backgrounds -->
+    <color name="background_primary">#0A0A14</color>
+    <color name="background_secondary">#16213E</color>
+    <color name="background_tertiary">#1A1A2E</color>
+
+    <!-- Glass Effects -->
+    <color name="glass_tint_cyan">#4000FFFF</color>
+    <color name="glass_tint_pink">#40FF00FF</color>
+    <color name="glass_border_cyan">#80000</color>
+    <color name="glass_border_pink">#80FF00FF</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#B0B0B0</color>
+    <color name="text_cyan">#00FFFF</color>
+    <color name="text_pink">#FF00FF</color>
+
+    <!-- Gradients & Effects -->
+    <color name="gradient_start">#FF006E</color>
+    <color name="gradient_mid">#8338EC</color>
+    <color name="gradient_end">#00FFFF</color>
+
+    <!-- Visualization Colors -->
+    <color name="viz_bar_cyan">#00FFFF</color>
+    <color name="viz_bar_pink">#FF00FF</color>
+    <color name="viz_pulse">#00FF88</color>
+
+    <!-- Standard Android Colors -->
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="transparent">#00000000</color>
+</resources>
