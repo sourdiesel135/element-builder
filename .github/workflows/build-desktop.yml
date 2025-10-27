@@ -1,0 +1,224 @@
+name: Build Element Desktop
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (e.g., v1.11.50 or branch name)'
+        required: true
+        default: 'develop'
+      targets:
+        description: 'Targets to build (space-separated, or "all")'
+        required: false
+        default: 'all'
+
+permissions:
+  contents: write
+
+jobs:
+  build-macos:
+    name: Build macOS
+    runs-on: macos-latest
+    if: contains(github.event.inputs.targets, 'universal-apple-darwin') || contains(github.event.inputs.targets, 'all') || github.event_name == 'push'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build TypeScript
+        run: yarn build
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "push" ]; then
+            VERSION="${{ github.ref_name }}"
+          else
+            VERSION="${{ github.event.inputs.version }}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Building version: $VERSION"
+
+      - name: Build Element Desktop for macOS
+        run: |
+          node lib/index.js \
+            --version "${{ steps.version.outputs.version }}" \
+            --targets universal-apple-darwin \
+            --skip-sync
+        env:
+          # Dummy Windows credentials (not needed for macOS build)
+          RIOTBUILD_WIN_VMNAME: "dummy"
+          RIOTBUILD_WIN_USERNAME: "dummy"
+          RIOTBUILD_WIN_PASSWORD: "dummy"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: |
+            packages.riot.im/**/*
+          retention-days: 30
+
+  build-linux:
+    name: Build Linux
+    runs-on: ubuntu-latest
+    if: contains(github.event.inputs.targets, 'x86_64-unknown-linux-gnu') || contains(github.event.inputs.targets, 'all') || github.event_name == 'push'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build TypeScript
+        run: yarn build
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "push" ]; then
+            VERSION="${{ github.ref_name }}"
+          else
+            VERSION="${{ github.event.inputs.version }}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Building version: $VERSION"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Element Desktop for Linux
+        run: |
+          node lib/index.js \
+            --version "${{ steps.version.outputs.version }}" \
+            --targets x86_64-unknown-linux-gnu \
+            --skip-sync
+        env:
+          # Dummy Windows credentials (not needed for Linux build)
+          RIOTBUILD_WIN_VMNAME: "dummy"
+          RIOTBUILD_WIN_USERNAME: "dummy"
+          RIOTBUILD_WIN_PASSWORD: "dummy"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: |
+            packages.riot.im/**/*
+            debian/**/*
+          retention-days: 30
+
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    if: contains(github.event.inputs.targets, 'x86_64-pc-windows-msvc') || contains(github.event.inputs.targets, 'i686-pc-windows-msvc') || contains(github.event.inputs.targets, 'all') || github.event_name == 'push'
+
+    strategy:
+      matrix:
+        arch: [x86_64, i686]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build TypeScript
+        run: yarn build
+
+      - name: Determine version
+        id: version
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" == "push" ]; then
+            VERSION="${{ github.ref_name }}"
+          else
+            VERSION="${{ github.event.inputs.version }}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Building version: $VERSION"
+
+      - name: Set target
+        id: target
+        shell: bash
+        run: |
+          if [ "${{ matrix.arch }}" == "i686" ]; then
+            echo "target=i686-pc-windows-msvc" >> $GITHUB_OUTPUT
+          else
+            echo "target=x86_64-pc-windows-msvc" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build Element Desktop for Windows
+        shell: bash
+        run: |
+          node lib/index.js \
+            --version "${{ steps.version.outputs.version }}" \
+            --targets "${{ steps.target.outputs.target }}" \
+            --skip-sync
+        env:
+          # Use local machine for Windows build
+          RIOTBUILD_WIN_VMNAME: "localhost"
+          RIOTBUILD_WIN_USERNAME: "${{ runner.user }}"
+          RIOTBUILD_WIN_PASSWORD: ""
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-${{ matrix.arch }}-build
+          path: |
+            packages.riot.im/**/*
+          retention-days: 30
+
+  create-release:
+    name: Create Release
+    needs: [build-macos, build-linux, build-windows]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Display structure
+        run: ls -R artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/**/*.dmg
+            artifacts/**/*.deb
+            artifacts/**/*.exe
+            artifacts/**/*.msi
+          draft: true
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
