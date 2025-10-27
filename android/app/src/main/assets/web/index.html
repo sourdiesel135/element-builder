@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TinyAmp Neural Audio Player</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            color: #00FFFF;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .cyberglass {
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(0, 255, 255, 0.2);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 0 10px #00FFFF;
+        }
+
+        .status {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.2em;
+            color: #FF00FF;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #00FFFF 0%, #FF00FF 100%);
+            border: none;
+            border-radius: 5px;
+            padding: 15px 30px;
+            margin: 10px;
+            font-size: 1em;
+            font-family: 'Courier New', monospace;
+            color: #000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+        }
+
+        .button:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 10px rgba(0, 255, 255, 0.5);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        #visualizer {
+            width: 100%;
+            height: 200px;
+            margin: 20px 0;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 5px;
+        }
+
+        .info {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #00CCCC;
+        }
+
+        .bridge-status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 255, 255, 0.2);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+        }
+
+        .bridge-ready {
+            color: #00FF99;
+        }
+
+        .bridge-pending {
+            color: #FFFF00;
+        }
+    </style>
+</head>
+<body>
+    <div class="bridge-status" id="bridgeStatus">
+        <span class="bridge-pending">Bridge: Initializing...</span>
+    </div>
+
+    <div id="container">
+        <div class="cyberglass">
+            <h1>🎵 TinyAmp Neural Audio Player</h1>
+
+            <div class="status" id="status">
+                Ready to explore consciousness through sound
+            </div>
+
+            <canvas id="visualizer"></canvas>
+
+            <div class="controls">
+                <button class="button" onclick="testPlayback()">Test Playback</button>
+                <button class="button" onclick="pausePlayback()">Pause</button>
+                <button class="button" onclick="resumePlayback()">Resume</button>
+                <button class="button" onclick="stopPlayback()">Stop</button>
+            </div>
+
+            <div class="info">
+                <p>Three.js Visualizations Placeholder</p>
+                <p>Android WebView + ExoPlayer Integration</p>
+                <p>Native Audio | Web Visuals | Cyberglass UI</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global TinyAmp namespace
+        window.TinyAmp = {
+            isPlaying: false,
+            currentTrack: null
+        };
+
+        // Listen for Android bridge ready event
+        window.addEventListener('androidBridgeReady', function() {
+            console.log('Android Bridge is ready!');
+            document.getElementById('bridgeStatus').innerHTML =
+                '<span class="bridge-ready">Bridge: Connected ✓</span>';
+            updateStatus('Android Bridge Connected');
+        });
+
+        // Check if Android bridge is available
+        function checkBridge() {
+            if (typeof Android !== 'undefined') {
+                console.log('Android interface detected');
+                return true;
+            } else if (typeof AndroidBridge !== 'undefined') {
+                console.log('AndroidBridge interface detected');
+                return true;
+            }
+            console.log('No Android interface detected - running in browser mode');
+            return false;
+        }
+
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
+        }
+
+        function testPlayback() {
+            if (!checkBridge()) {
+                updateStatus('⚠️ Android bridge not available');
+                return;
+            }
+
+            updateStatus('▶️ Playing test track...');
+
+            // Test with a sample Archive.org audio URL
+            const testUrl = 'https://archive.org/download/testmp3testfile/mpthreetest.mp3';
+            const title = 'Test Track';
+            const artist = 'TinyAmp Neural';
+            const albumArt = '';
+
+            if (typeof Android !== 'undefined') {
+                Android.play(testUrl, title, artist, albumArt);
+            } else if (typeof AndroidBridge !== 'undefined') {
+                AndroidBridge.play(testUrl, title, artist, albumArt);
+            }
+
+            TinyAmp.isPlaying = true;
+            TinyAmp.currentTrack = { title, artist };
+
+            // Start simple visualizer
+            startVisualizer();
+        }
+
+        function pausePlayback() {
+            if (!checkBridge()) {
+                updateStatus('⚠️ Android bridge not available');
+                return;
+            }
+
+            updateStatus('⏸️ Paused');
+
+            if (typeof Android !== 'undefined') {
+                Android.pause();
+            } else if (typeof AndroidBridge !== 'undefined') {
+                AndroidBridge.pause();
+            }
+
+            TinyAmp.isPlaying = false;
+        }
+
+        function resumePlayback() {
+            if (!checkBridge()) {
+                updateStatus('⚠️ Android bridge not available');
+                return;
+            }
+
+            updateStatus('▶️ Resuming playback...');
+
+            if (typeof Android !== 'undefined') {
+                Android.resume();
+            } else if (typeof AndroidBridge !== 'undefined') {
+                AndroidBridge.resume();
+            }
+
+            TinyAmp.isPlaying = true;
+            startVisualizer();
+        }
+
+        function stopPlayback() {
+            if (!checkBridge()) {
+                updateStatus('⚠️ Android bridge not available');
+                return;
+            }
+
+            updateStatus('⏹️ Stopped');
+
+            if (typeof Android !== 'undefined') {
+                Android.stop();
+            } else if (typeof AndroidBridge !== 'undefined') {
+                AndroidBridge.stop();
+            }
+
+            TinyAmp.isPlaying = false;
+            stopVisualizer();
+        }
+
+        // Simple canvas visualizer (placeholder for Three.js)
+        const canvas = document.getElementById('visualizer');
+        const ctx = canvas.getContext('2d');
+        let animationId = null;
+
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        }
+
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        function drawVisualizer() {
+            if (!TinyAmp.isPlaying) return;
+
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw animated bars
+            const barCount = 32;
+            const barWidth = canvas.width / barCount;
+            const time = Date.now() * 0.001;
+
+            for (let i = 0; i < barCount; i++) {
+                const height = Math.sin(time + i * 0.5) * 50 + 60;
+                const hue = (i / barCount) * 120 + 180; // Cyan to magenta
+
+                ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+                ctx.fillRect(
+                    i * barWidth,
+                    canvas.height - height,
+                    barWidth - 2,
+                    height
+                );
+            }
+
+            animationId = requestAnimationFrame(drawVisualizer);
+        }
+
+        function startVisualizer() {
+            if (!animationId) {
+                drawVisualizer();
+            }
+        }
+
+        function stopVisualizer() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Expose functions for native callbacks
+        window.TinyAmp.play = function() {
+            resumePlayback();
+        };
+
+        window.TinyAmp.pause = function() {
+            pausePlayback();
+        };
+
+        window.TinyAmp.next = function() {
+            updateStatus('⏭️ Next track (not implemented)');
+        };
+
+        window.TinyAmp.previous = function() {
+            updateStatus('⏮️ Previous track (not implemented)');
+        };
+
+        window.TinyAmp.seek = function(position) {
+            updateStatus(`⏩ Seeking to ${position}ms`);
+            if (typeof Android !== 'undefined') {
+                Android.seek(position);
+            } else if (typeof AndroidBridge !== 'undefined') {
+                AndroidBridge.seek(position);
+            }
+        };
+
+        // Initialize
+        console.log('TinyAmp web interface loaded');
+        checkBridge();
+    </script>
+</body>
+</html>

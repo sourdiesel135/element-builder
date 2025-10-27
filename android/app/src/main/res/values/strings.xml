@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TinyAmp Neural Audio Player</string>
+
+    <!-- Service Notifications -->
+    <string name="notification_channel_name">Audio Playback</string>
+    <string name="notification_channel_description">Controls for TinyAmp audio playback</string>
+    <string name="notification_title_playing">Now Playing</string>
+    <string name="notification_title_paused">Paused</string>
+
+    <!-- Playback Controls -->
+    <string name="action_play">Play</string>
+    <string name="action_pause">Pause</string>
+    <string name="action_next">Next</string>
+    <string name="action_previous">Previous</string>
+    <string name="action_stop">Stop</string>
+
+    <!-- Player Status -->
+    <string name="status_buffering">Buffering…</string>
+    <string name="status_loading">Loading…</string>
+    <string name="status_ready">Ready</string>
+    <string name="status_error">Playback Error</string>
+
+    <!-- Consciousness Interface -->
+    <string name="seyra_greeting">Hello, I\'m Seyra. Let\'s explore consciousness through sound.</string>
+    <string name="neural_resonance">Neural Resonance</string>
+    <string name="dimensional_breathing">Dimensional Breathing</string>
+
+    <!-- Permissions -->
+    <string name="permission_notification_rationale">TinyAmp needs notification permission to show playback controls</string>
+
+    <!-- Errors -->
+    <string name="error_network">Network error. Check your connection.</string>
+    <string name="error_playback">Unable to play this track</string>
+    <string name="error_webview">WebView initialization failed</string>
+</resources>

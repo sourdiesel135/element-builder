@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Cyberglass Theme -->
+    <style name="Theme.TinyAmp" parent="Theme.Material3.Dark.NoActionBar">
+        <!-- Primary brand color -->
+        <item name="colorPrimary">@color/neon_cyan</item>
+        <item name="colorPrimaryVariant">@color/neon_cyan_dark</item>
+        <item name="colorOnPrimary">@color/black</item>
+
+        <!-- Secondary brand color -->
+        <item name="colorSecondary">@color/neon_pink</item>
+        <item name="colorSecondaryVariant">@color/neon_pink_dark</item>
+        <item name="colorOnSecondary">@color/black</item>
+
+        <!-- Background colors -->
+        <item name="android:windowBackground">@color/dark_gray</item>
+        <item name="colorSurface">@color/glass_background_dark</item>
+        <item name="colorOnSurface">@color/white</item>
+
+        <!-- Status bar -->
+        <item name="android:statusBarColor">@color/black</item>
+        <item name="android:navigationBarColor">@color/black</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Material3 specific -->
+        <item name="colorTertiary">@color/neon_purple</item>
+        <item name="colorError">@color/error_red</item>
+
+        <!-- Hardware acceleration for WebView -->
+        <item name="android:hardwareAccelerated">true</item>
+    </style>
+
+    <!-- Splash Screen Theme -->
+    <style name="Theme.TinyAmp.Splash" parent="Theme.TinyAmp">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+    </style>
+
+    <!-- Transparent Activity Theme -->
+    <style name="Theme.TinyAmp.Transparent" parent="Theme.TinyAmp">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+</resources>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Cyberglass Neon Theme Colors -->
+    <color name="neon_cyan">#00FFFF</color>
+    <color name="neon_cyan_dark">#00CCCC</color>
+    <color name="neon_pink">#FF00FF</color>
+    <color name="neon_pink_dark">#CC00CC</color>
+    <color name="neon_purple">#9D00FF</color>
+    <color name="neon_blue">#0099FF</color>
+
+    <!-- Glass Background Colors -->
+    <color name="glass_background">#1A000000</color>
+    <color name="glass_background_dark">#CC000000</color>
+    <color name="glass_stroke">#33FFFFFF</color>
+    <color name="glass_overlay">#0DFFFFFF</color>
+
+    <!-- UI Colors -->
+    <color name="black">#000000</color>
+    <color name="dark_gray">#1A1A1A</color>
+    <color name="medium_gray">#333333</color>
+    <color name="light_gray">#CCCCCC</color>
+    <color name="white">#FFFFFF</color>
+
+    <!-- Status Colors -->
+    <color name="success_green">#00FF99</color>
+    <color name="warning_yellow">#FFFF00</color>
+    <color name="error_red">#FF0055</color>
+
+    <!-- Neural Resonance Indicators -->
+    <color name="resonance_low">#0099FF</color>
+    <color name="resonance_medium">#00FFFF</color>
+    <color name="resonance_high">#FF00FF</color>
+</resources>
