@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcane Sound — AI Music Generator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Raleway:wght@300;400;600&display=swap');
+
+        :root {
+            --purple: #7b2fff;
+            --teal: #00e5cc;
+            --deep: #0a0010;
+            --mid: #120025;
+            --surface: rgba(123, 47, 255, 0.07);
+            --border: rgba(123, 47, 255, 0.25);
+            --glow-purple: 0 0 30px rgba(123, 47, 255, 0.5);
+            --glow-teal: 0 0 30px rgba(0, 229, 204, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Raleway', sans-serif;
+            background: var(--deep);
+            color: #e0d6ff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated cosmic background */
+        .cosmos {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .cosmos::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 15% 10%, rgba(123, 47, 255, 0.35) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 80% at 85% 80%, rgba(0, 229, 204, 0.25) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 50% at 50% 50%, rgba(60, 0, 120, 0.5) 0%, transparent 70%);
+            animation: cosmosShift 14s ease-in-out infinite alternate;
+        }
+
+        @keyframes cosmosShift {
+            0%   { opacity: 0.8; transform: scale(1); }
+            100% { opacity: 1;   transform: scale(1.06); }
+        }
+
+        /* Floating orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(70px);
+            animation: orbFloat linear infinite;
+            pointer-events: none;
+        }
+        .orb1 { width: 350px; height: 350px; background: rgba(123,47,255,0.18); top: -100px; left: -80px; animation-duration: 20s; }
+        .orb2 { width: 250px; height: 250px; background: rgba(0,229,204,0.12); bottom: -80px; right: -60px; animation-duration: 17s; animation-delay: -6s; }
+        .orb3 { width: 180px; height: 180px; background: rgba(180,80,255,0.15); top: 40%; left: 50%; animation-duration: 25s; animation-delay: -10s; }
+
+        @keyframes orbFloat {
+            0%   { transform: translate(0,0) scale(1); }
+            33%  { transform: translate(30px, -40px) scale(1.08); }
+            66%  { transform: translate(-20px, 20px) scale(0.95); }
+            100% { transform: translate(0,0) scale(1); }
+        }
+
+        /* Stars */
+        .stars { position: absolute; inset: 0; }
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            background: white;
+            animation: twinkle ease-in-out infinite;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.1; transform: scale(1); }
+            50%       { opacity: 0.8; transform: scale(1.4); }
+        }
+
+        /* Sigil ring decoration */
+        .sigil-ring {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 900px;
+            height: 900px;
+            border-radius: 50%;
+            border: 1px solid rgba(123, 47, 255, 0.06);
+            pointer-events: none;
+            z-index: 0;
+            animation: sigilRotate 60s linear infinite;
+        }
+        .sigil-ring::before {
+            content: '';
+            position: absolute;
+            inset: 30px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 229, 204, 0.04);
+        }
+        @keyframes sigilRotate { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+        /* Layout */
+        .wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .logo-glyph {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+        .logo-glyph svg {
+            width: 100%;
+            height: 100%;
+            animation: glyphSpin 8s linear infinite;
+            filter: drop-shadow(0 0 12px var(--purple));
+        }
+        @keyframes glyphSpin { to { transform: rotate(360deg); } }
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(1.8rem, 5vw, 2.8rem);
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            background: linear-gradient(135deg, #c084fc, var(--teal), #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+            animation: titleShimmer 4s ease-in-out infinite alternate;
+        }
+        @keyframes titleShimmer {
+            0%   { filter: brightness(1); }
+            100% { filter: brightness(1.3); }
+        }
+
+        .subtitle {
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: rgba(200, 180, 255, 0.55);
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 22px;
+            backdrop-filter: blur(14px);
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(123,47,255,0.04), rgba(0,229,204,0.02));
+            pointer-events: none;
+        }
+        .card:hover { border-color: rgba(123, 47, 255, 0.45); }
+
+        .card-title {
+            font-family: 'Cinzel', serif;
+            font-size: 0.78rem;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--teal);
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-title::before {
+            content: '';
+            display: inline-block;
+            width: 18px;
+            height: 1px;
+            background: var(--teal);
+            box-shadow: 0 0 8px var(--teal);
+        }
+
+        /* Token input */
+        .token-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .token-row input {
+            flex: 1;
+        }
+        .token-save {
+            white-space: nowrap;
+            padding: 12px 20px;
+            font-size: 0.78rem;
+        }
+
+        /* Inputs */
+        input, textarea, select {
+            width: 100%;
+            padding: 13px 16px;
+            background: rgba(0,0,0,0.35);
+            border: 1px solid rgba(123,47,255,0.3);
+            border-radius: 12px;
+            color: #e0d6ff;
+            font-family: 'Raleway', sans-serif;
+            font-size: 0.95rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            outline: none;
+        }
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--purple);
+            box-shadow: 0 0 0 3px rgba(123,47,255,0.15), var(--glow-purple);
+        }
+        input::placeholder, textarea::placeholder {
+            color: rgba(200,180,255,0.3);
+        }
+        select option { background: #1a0035; }
+
+        textarea {
+            resize: vertical;
+            min-height: 90px;
+            line-height: 1.6;
+        }
+
+        /* Presets */
+        .presets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .preset-btn {
+            padding: 6px 14px;
+            border: 1px solid rgba(123,47,255,0.3);
+            border-radius: 20px;
+            background: rgba(123,47,255,0.08);
+            color: rgba(200,180,255,0.75);
+            font-family: 'Raleway', sans-serif;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.05em;
+        }
+        .preset-btn:hover, .preset-btn.active {
+            background: rgba(123,47,255,0.25);
+            border-color: var(--purple);
+            color: #e0d6ff;
+            box-shadow: 0 0 12px rgba(123,47,255,0.35);
+        }
+
+        /* Controls row */
+        .controls-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        @media (max-width: 520px) { .controls-row { grid-template-columns: 1fr; } }
+
+        .control-group label {
+            display: block;
+            font-size: 0.75rem;
+            color: rgba(200,180,255,0.55);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 7px;
+        }
+
+        /* Generate button */
+        .generate-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #6d28d9, #7b2fff, #0ea5e9);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.3s;
+            box-shadow: 0 4px 24px rgba(123,47,255,0.4);
+        }
+        .generate-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.12) 50%, transparent 100%);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+        .generate-btn:hover::before { transform: translateX(100%); }
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(123,47,255,0.55);
+        }
+        .generate-btn:active { transform: translateY(0); }
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Spell casting animation */
+        .casting-ring {
+            display: none;
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 16px;
+            position: relative;
+        }
+        .casting-ring.active { display: block; }
+        .casting-ring .ring {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            animation: castSpin linear infinite;
+        }
+        .casting-ring .ring:nth-child(1) {
+            border-top-color: var(--purple);
+            animation-duration: 1s;
+        }
+        .casting-ring .ring:nth-child(2) {
+            inset: 8px;
+            border-right-color: var(--teal);
+            animation-duration: 1.4s;
+            animation-direction: reverse;
+        }
+        .casting-ring .ring:nth-child(3) {
+            inset: 16px;
+            border-bottom-color: #c084fc;
+            animation-duration: 0.8s;
+        }
+        @keyframes castSpin { to { transform: rotate(360deg); } }
+
+        .status-text {
+            text-align: center;
+            font-size: 0.82rem;
+            color: rgba(200,180,255,0.6);
+            letter-spacing: 0.1em;
+            margin-top: 8px;
+            min-height: 20px;
+            font-style: italic;
+        }
+
+        /* Player */
+        .player-card {
+            display: none;
+        }
+        .player-card.visible { display: block; }
+
+        .track-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .vinyl {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: conic-gradient(
+                #7b2fff 0deg, #0ea5e9 60deg, #00e5cc 120deg,
+                #7b2fff 180deg, #0ea5e9 240deg, #00e5cc 300deg, #7b2fff 360deg
+            );
+            flex-shrink: 0;
+            position: relative;
+            box-shadow: var(--glow-purple);
+        }
+        .vinyl::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--deep);
+            border: 2px solid rgba(123,47,255,0.4);
+        }
+        .vinyl.spinning { animation: vinylSpin 3s linear infinite; }
+        @keyframes vinylSpin { to { transform: rotate(360deg); } }
+
+        .track-meta { flex: 1; overflow: hidden; }
+        .track-name {
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+            color: #e0d6ff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .track-sub {
+            font-size: 0.72rem;
+            color: rgba(200,180,255,0.45);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-top: 3px;
+        }
+
+        /* Waveform visualizer */
+        .waveform {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            height: 48px;
+            margin-bottom: 18px;
+        }
+        .wave-bar {
+            width: 4px;
+            border-radius: 2px;
+            background: linear-gradient(to top, var(--purple), var(--teal));
+            transition: height 0.15s ease;
+        }
+        .waveform.idle .wave-bar { height: 4px; opacity: 0.4; }
+        .waveform.playing .wave-bar { animation: waveAnim ease-in-out infinite alternate; }
+        @keyframes waveAnim {
+            from { height: 4px; }
+            to   { height: var(--peak, 32px); }
+        }
+
+        /* Audio element */
+        audio {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 14px;
+            accent-color: var(--purple);
+        }
+        audio::-webkit-media-controls-panel {
+            background: rgba(30, 0, 60, 0.8);
+        }
+
+        .player-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 11px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: rgba(123,47,255,0.1);
+            color: rgba(200,180,255,0.8);
+            font-family: 'Raleway', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .action-btn:hover {
+            background: rgba(123,47,255,0.25);
+            border-color: var(--purple);
+            color: #e0d6ff;
+        }
+
+        /* History */
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 280px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .history-list::-webkit-scrollbar { width: 4px; }
+        .history-list::-webkit-scrollbar-track { background: transparent; }
+        .history-list::-webkit-scrollbar-thumb {
+            background: rgba(123,47,255,0.4);
+            border-radius: 2px;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            background: rgba(0,0,0,0.25);
+            border: 1px solid rgba(123,47,255,0.15);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .history-item:hover {
+            background: rgba(123,47,255,0.12);
+            border-color: rgba(123,47,255,0.4);
+        }
+        .history-item .hi-icon {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .history-item .hi-info { flex: 1; overflow: hidden; }
+        .history-item .hi-prompt {
+            font-size: 0.82rem;
+            color: #c4b5fd;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .history-item .hi-meta {
+            font-size: 0.7rem;
+            color: rgba(200,180,255,0.4);
+            margin-top: 2px;
+        }
+        .hi-play {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(123,47,255,0.2);
+            border: 1px solid rgba(123,47,255,0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--teal);
+            font-size: 0.75rem;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+        .history-item:hover .hi-play {
+            background: rgba(123,47,255,0.4);
+        }
+
+        /* Alert / messages */
+        .alert {
+            padding: 13px 16px;
+            border-radius: 10px;
+            font-size: 0.84rem;
+            margin-bottom: 16px;
+            display: none;
+            border: 1px solid;
+        }
+        .alert.show { display: block; }
+        .alert.error {
+            background: rgba(255, 50, 80, 0.1);
+            border-color: rgba(255, 50, 80, 0.4);
+            color: #fca5a5;
+        }
+        .alert.success {
+            background: rgba(0, 229, 204, 0.08);
+            border-color: rgba(0, 229, 204, 0.3);
+            color: #99f6e4;
+        }
+        .alert.info {
+            background: rgba(123, 47, 255, 0.08);
+            border-color: rgba(123, 47, 255, 0.3);
+            color: #c4b5fd;
+        }
+
+        /* HF link */
+        .hf-link {
+            text-align: center;
+            font-size: 0.72rem;
+            color: rgba(200,180,255,0.35);
+            margin-top: 30px;
+            letter-spacing: 0.08em;
+        }
+        .hf-link a { color: var(--teal); text-decoration: none; }
+        .hf-link a:hover { text-decoration: underline; }
+
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(123,47,255,0.3), transparent);
+            margin: 6px 0 20px;
+        }
+
+        /* Empty state */
+        .empty-history {
+            text-align: center;
+            padding: 30px;
+            color: rgba(200,180,255,0.3);
+            font-size: 0.85rem;
+            letter-spacing: 0.08em;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Cosmic background -->
+<div class="cosmos">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+    <div class="stars" id="stars"></div>
+</div>
+<div class="sigil-ring"></div>
+
+<div class="wrapper">
+
+    <!-- Header -->
+    <header>
+        <div class="logo-glyph">
+            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="46" stroke="#7b2fff" stroke-width="1.5" stroke-dasharray="8 4"/>
+                <circle cx="50" cy="50" r="32" stroke="#00e5cc" stroke-width="1" stroke-dasharray="5 6"/>
+                <polygon points="50,14 61,38 88,38 66,55 74,80 50,64 26,80 34,55 12,38 39,38" fill="none" stroke="#c084fc" stroke-width="1.2"/>
+                <circle cx="50" cy="50" r="6" fill="#7b2fff" opacity="0.8"/>
+                <circle cx="50" cy="50" r="3" fill="#00e5cc"/>
+            </svg>
+        </div>
+        <h1>ARCANE SOUND</h1>
+        <p class="subtitle">AI Music Generation &nbsp;·&nbsp; Powered by Hugging Face</p>
+    </header>
+
+    <!-- API Token -->
+    <div class="card">
+        <div class="card-title">Arcane Key — HF API Token</div>
+        <div class="token-row">
+            <input type="password" id="hfToken" placeholder="hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                   autocomplete="off" spellcheck="false">
+            <button class="action-btn token-save" onclick="saveToken()">Save</button>
+        </div>
+        <p style="font-size:0.73rem; color:rgba(200,180,255,0.38); margin-top:10px; line-height:1.6;">
+            Free token required. Create one at
+            <a href="https://huggingface.co/settings/tokens" target="_blank" style="color:var(--teal);">huggingface.co/settings/tokens</a>
+            (Read access is sufficient).
+        </p>
+    </div>
+
+    <!-- Prompt -->
+    <div class="card">
+        <div class="card-title">Incantation — Music Prompt</div>
+        <textarea id="prompt"
+            placeholder="Describe the music you wish to conjure… e.g., 'ethereal ambient music with soft synths and distant choirs, mystical and serene'"
+        ></textarea>
+
+        <div class="presets" id="presets">
+            <button class="preset-btn" onclick="applyPreset(this, 'ethereal ambient music with soft synths, mystical atmosphere, floating melodies')">🌫️ Ethereal</button>
+            <button class="preset-btn" onclick="applyPreset(this, 'epic orchestral fantasy music with powerful drums and soaring strings')">⚔️ Epic Fantasy</button>
+            <button class="preset-btn" onclick="applyPreset(this, 'dark cinematic music, ominous atmosphere, low drones and haunting melody')">🌑 Dark Cinematic</button>
+            <button class="preset-btn" onclick="applyPreset(this, 'upbeat lo-fi hip hop, chill beats, vinyl crackle, relaxing vibes')">🎧 Lo-Fi Chill</button>
+            <button class="preset-btn" onclick="applyPreset(this, 'energetic electronic dance music, pulsing bass, euphoric synth leads')">⚡ Electronic</button>
+            <button class="preset-btn" onclick="applyPreset(this, 'peaceful acoustic guitar, warm and gentle, sunrise mood, soft fingerpicking')">🌿 Acoustic</button>
+            <button class="preset-btn" onclick="applyPreset(this, 'jazz piano trio, late night bar atmosphere, improvisation, smooth and cool')">🎷 Jazz</button>
+            <button class="preset-btn" onclick="applyPreset(this, 'cosmic space music, interstellar journey, evolving textures, zero gravity feeling')">🌌 Cosmic</button>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="card">
+        <div class="card-title">Ritual Parameters</div>
+        <div class="controls-row">
+            <div class="control-group">
+                <label>Duration</label>
+                <select id="duration">
+                    <option value="256">~5 seconds</option>
+                    <option value="512" selected>~10 seconds</option>
+                    <option value="768">~15 seconds</option>
+                    <option value="1024">~20 seconds</option>
+                    <option value="1500">~30 seconds</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Model</label>
+                <select id="model">
+                    <option value="facebook/musicgen-small" selected>MusicGen Small (fast)</option>
+                    <option value="facebook/musicgen-medium">MusicGen Medium (richer)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert -->
+    <div class="alert" id="alert"></div>
+
+    <!-- Generate -->
+    <div class="card">
+        <div class="casting-ring" id="castingRing">
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+        </div>
+        <button class="generate-btn" id="generateBtn" onclick="generateMusic()">
+            ✦ CAST THE SPELL ✦
+        </button>
+        <p class="status-text" id="statusText"></p>
+    </div>
+
+    <!-- Player -->
+    <div class="card player-card" id="playerCard">
+        <div class="card-title">Now Playing</div>
+        <div class="track-info">
+            <div class="vinyl" id="vinyl"></div>
+            <div class="track-meta">
+                <div class="track-name" id="trackName">Generated Track</div>
+                <div class="track-sub" id="trackSub">Arcane Sound · AI Generated</div>
+            </div>
+        </div>
+
+        <div class="waveform idle" id="waveform"></div>
+
+        <audio id="audioPlayer" controls onplay="onPlay()" onpause="onPause()" onended="onPause()"></audio>
+
+        <div class="player-actions">
+            <button class="action-btn" onclick="downloadTrack()">
+                ⬇ Download
+            </button>
+            <button class="action-btn" onclick="regenerate()">
+                ↺ Regenerate
+            </button>
+        </div>
+    </div>
+
+    <!-- History -->
+    <div class="card">
+        <div class="card-title">Summoning History</div>
+        <div class="divider"></div>
+        <div class="history-list" id="historyList">
+            <div class="empty-history">No tracks conjured yet…</div>
+        </div>
+    </div>
+
+    <p class="hf-link">
+        Powered by <a href="https://huggingface.co/facebook/musicgen-small" target="_blank">facebook/musicgen-small</a>
+        via Hugging Face Inference API &nbsp;·&nbsp; Free tier
+    </p>
+
+</div>
+
+<script>
+    // ── State ──────────────────────────────────────────────────
+    let currentAudioBlob = null;
+    let currentPrompt = '';
+    let history = [];
+
+    // ── Init ──────────────────────────────────────────────────
+    window.addEventListener('DOMContentLoaded', () => {
+        generateStars();
+        buildWaveform();
+        loadHistory();
+
+        const saved = localStorage.getItem('hf_token');
+        if (saved) document.getElementById('hfToken').value = saved;
+    });
+
+    // ── Stars ─────────────────────────────────────────────────
+    function generateStars() {
+        const container = document.getElementById('stars');
+        for (let i = 0; i < 120; i++) {
+            const s = document.createElement('div');
+            s.className = 'star';
+            const size = Math.random() * 2.5 + 0.5;
+            s.style.cssText = `
+                width:${size}px; height:${size}px;
+                top:${Math.random() * 100}%;
+                left:${Math.random() * 100}%;
+                animation-duration:${2 + Math.random() * 4}s;
+                animation-delay:${-Math.random() * 5}s;
+            `;
+            container.appendChild(s);
+        }
+    }
+
+    // ── Waveform ──────────────────────────────────────────────
+    function buildWaveform() {
+        const wf = document.getElementById('waveform');
+        wf.innerHTML = '';
+        const bars = 38;
+        for (let i = 0; i < bars; i++) {
+            const b = document.createElement('div');
+            b.className = 'wave-bar';
+            const peak = 8 + Math.random() * 36;
+            b.style.cssText = `
+                height: 4px;
+                --peak: ${peak}px;
+                animation-duration: ${0.4 + Math.random() * 0.6}s;
+                animation-delay: ${-Math.random()}s;
+            `;
+            wf.appendChild(b);
+        }
+    }
+
+    // ── Token ─────────────────────────────────────────────────
+    function saveToken() {
+        const token = document.getElementById('hfToken').value.trim();
+        if (!token) { showAlert('Please enter your HF API token.', 'error'); return; }
+        localStorage.setItem('hf_token', token);
+        showAlert('Token saved securely in your browser.', 'success');
+    }
+
+    function getToken() {
+        return (document.getElementById('hfToken').value.trim() ||
+                localStorage.getItem('hf_token') || '');
+    }
+
+    // ── Presets ───────────────────────────────────────────────
+    function applyPreset(btn, text) {
+        document.getElementById('prompt').value = text;
+        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    // ── Alert ─────────────────────────────────────────────────
+    function showAlert(msg, type = 'info') {
+        const el = document.getElementById('alert');
+        el.textContent = msg;
+        el.className = `alert ${type} show`;
+        setTimeout(() => el.classList.remove('show'), 6000);
+    }
+
+    // ── Status ────────────────────────────────────────────────
+    const statusMessages = [
+        'Consulting the ancient algorithms…',
+        'Weaving sonic frequencies…',
+        'Channeling the music spirits…',
+        'Aligning harmonic resonance…',
+        'Binding the melody runes…',
+        'Invoking the rhythm arcana…',
+        'Please wait — cold starts may take ~30 s…',
+    ];
+    let statusCycle;
+
+    function startStatus() {
+        let i = 0;
+        document.getElementById('statusText').textContent = statusMessages[0];
+        statusCycle = setInterval(() => {
+            i = (i + 1) % statusMessages.length;
+            document.getElementById('statusText').textContent = statusMessages[i];
+        }, 2800);
+    }
+
+    function stopStatus(msg = '') {
+        clearInterval(statusCycle);
+        document.getElementById('statusText').textContent = msg;
+    }
+
+    // ── Generate ──────────────────────────────────────────────
+    async function generateMusic() {
+        const token = getToken();
+        if (!token) {
+            showAlert('Please enter your Hugging Face API token first.', 'error');
+            return;
+        }
+
+        const prompt = document.getElementById('prompt').value.trim();
+        if (!prompt) {
+            showAlert('Please describe the music you want to generate.', 'error');
+            return;
+        }
+
+        const maxTokens = parseInt(document.getElementById('duration').value);
+        const model = document.getElementById('model').value;
+
+        // UI: start
+        const btn = document.getElementById('generateBtn');
+        btn.disabled = true;
+        document.getElementById('castingRing').classList.add('active');
+        startStatus();
+        clearAlert();
+
+        try {
+            const response = await fetch(
+                `https://api-inference.huggingface.co/models/${model}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        inputs: prompt,
+                        parameters: { max_new_tokens: maxTokens },
+                    }),
+                }
+            );
+
+            if (!response.ok) {
+                let errMsg = `API error ${response.status}`;
+                try {
+                    const errJson = await response.json();
+                    if (errJson.error) errMsg = errJson.error;
+                    if (errJson.estimated_time) {
+                        errMsg += ` — Model loading, retry in ~${Math.ceil(errJson.estimated_time)}s`;
+                    }
+                } catch (_) {}
+
+                if (response.status === 401) errMsg = 'Invalid API token. Check your Hugging Face token.';
+                if (response.status === 503) errMsg = 'Model is loading on HF servers. Please wait ~20–30 s and try again.';
+
+                throw new Error(errMsg);
+            }
+
+            const blob = await response.blob();
+            if (blob.size < 1000) throw new Error('Response too small — model may still be loading. Try again in a moment.');
+
+            currentAudioBlob = blob;
+            currentPrompt = prompt;
+
+            playBlob(blob, prompt);
+            addToHistory(prompt, blob, model);
+            stopStatus('✦ Track conjured successfully');
+
+        } catch (err) {
+            stopStatus('');
+            showAlert(err.message, 'error');
+            console.error(err);
+        } finally {
+            btn.disabled = false;
+            document.getElementById('castingRing').classList.remove('active');
+        }
+    }
+
+    function clearAlert() {
+        const el = document.getElementById('alert');
+        el.classList.remove('show');
+    }
+
+    // ── Player ────────────────────────────────────────────────
+    function playBlob(blob, label) {
+        const url = URL.createObjectURL(blob);
+        const audio = document.getElementById('audioPlayer');
+        audio.src = url;
+        audio.play().catch(() => {});
+
+        document.getElementById('trackName').textContent =
+            label.length > 60 ? label.slice(0, 57) + '…' : label;
+
+        const card = document.getElementById('playerCard');
+        card.classList.add('visible');
+        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        buildWaveform();
+    }
+
+    function onPlay() {
+        document.getElementById('vinyl').classList.add('spinning');
+        document.getElementById('waveform').className = 'waveform playing';
+    }
+
+    function onPause() {
+        document.getElementById('vinyl').classList.remove('spinning');
+        document.getElementById('waveform').className = 'waveform idle';
+    }
+
+    function downloadTrack() {
+        if (!currentAudioBlob) return;
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(currentAudioBlob);
+        a.download = `arcane-sound-${Date.now()}.wav`;
+        a.click();
+    }
+
+    function regenerate() {
+        generateMusic();
+    }
+
+    // ── History ───────────────────────────────────────────────
+    function addToHistory(prompt, blob, model) {
+        const entry = {
+            id: Date.now(),
+            prompt,
+            model,
+            url: URL.createObjectURL(blob),
+            ts: new Date().toLocaleTimeString(),
+        };
+        history.unshift(entry);
+        if (history.length > 20) history.pop();
+        renderHistory();
+    }
+
+    function renderHistory() {
+        const list = document.getElementById('historyList');
+        if (history.length === 0) {
+            list.innerHTML = '<div class="empty-history">No tracks conjured yet…</div>';
+            return;
+        }
+        list.innerHTML = history.map(entry => `
+            <div class="history-item" onclick="playFromHistory('${entry.id}')">
+                <div class="hi-icon">🎵</div>
+                <div class="hi-info">
+                    <div class="hi-prompt">${entry.prompt}</div>
+                    <div class="hi-meta">${entry.ts} &nbsp;·&nbsp; ${entry.model.split('/')[1]}</div>
+                </div>
+                <div class="hi-play">▶</div>
+            </div>
+        `).join('');
+    }
+
+    function playFromHistory(id) {
+        const entry = history.find(h => String(h.id) === String(id));
+        if (!entry) return;
+        const audio = document.getElementById('audioPlayer');
+        audio.src = entry.url;
+        audio.play().catch(() => {});
+        document.getElementById('trackName').textContent =
+            entry.prompt.length > 60 ? entry.prompt.slice(0, 57) + '…' : entry.prompt;
+        document.getElementById('playerCard').classList.add('visible');
+        buildWaveform();
+    }
+
+    function loadHistory() {
+        renderHistory();
+    }
+</script>
+
+</body>
+</html>
